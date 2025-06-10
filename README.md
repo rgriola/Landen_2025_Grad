@@ -4,6 +4,14 @@ This is a Phaser 3 project template that uses webpack for bundling. It supports 
 
 **[This Template is also available as a TypeScript version.](https://github.com/phaserjs/template-webpack-ts)**
 
+## for dev build. 
+npm run dev
+npx webpack --config webpack/config.js
+
+## for probuild 
+npm run build
+npx webpack --config webpack/config.prod.js
+
 ### Versions
 
 This template has been updated for:

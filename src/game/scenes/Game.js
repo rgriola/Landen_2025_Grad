@@ -13,6 +13,31 @@ export class Game extends Scene {
 
     create() {
 
+         // Add full screen button
+    const fullScreenButton = this.add.image(this.scale.width - 16, 16, 'fullscreen-icon')
+        .setOrigin(1, 0)
+        .setInteractive()
+        .setScale(0.5)
+        .setDepth(1000);
+
+    // Handle clicks on the button
+    fullScreenButton.on('pointerup', () => {
+        if (this.scale.isFullscreen) {
+            this.scale.stopFullscreen();
+        } else {
+            this.scale.startFullscreen();
+        }
+    });
+
+    // Add keyboard shortcut for full screen (F key)
+    this.input.keyboard.on('keydown-F', () => {
+        if (this.scale.isFullscreen) {
+            this.scale.stopFullscreen();
+        } else {
+            this.scale.startFullscreen();
+        }
+    });
+
         // Background music with looping
         this.backgroundMusic = this.sound.add('backgroundMusic', {
             volume: 0.5,
@@ -32,7 +57,7 @@ export class Game extends Scene {
         // Load background video
         this.video = this.add.video(screenWidth/2, screenHeight/2, 'rivertimelapse')
        // .setDisplaySize(videoWidth, videoHeight)
-        .setScale(.6)
+        .setScale(1)
         .setOrigin(0.5, 0.5)
         .setDepth(0)
         .setMute(true)

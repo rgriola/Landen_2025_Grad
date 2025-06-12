@@ -8,7 +8,7 @@ import { AUTO, Game } from 'phaser';
 // Find out more information about the Game Config at:
 // https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
 const config = {
-    type: AUTO,
+   /* type: AUTO,
     width: 1024,
     height: 768,
     parent: 'game-container',
@@ -16,6 +16,13 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
+    },*/
+    type: AUTO,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: window.innerWidth,
+        height: window.innerHeight,
     },
     scene: [
         Boot,

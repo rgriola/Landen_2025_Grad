@@ -4,45 +4,109 @@ import { ImageWithLabel } from '../gameObjects/ImageWithLabel.js';
 export class Game extends Scene {
     constructor() {
         super('Game');
+        this.activeImages = [];
+        this.imageConfigs = [
+            {
+                key: 'RonBurgundy',
+                label: 'Ron:',
+                scale: 0.1,
+                speed: 0.5
+            },
+            {
+                key: 'Gilla',
+                label: 'Gilla:',
+                scale: 0.25,
+                speed: 1,
+                textOffsetY: 20
+            },
+            {
+                key: 'packaderm',
+                label: 'Milo The Elephant:',
+                scale: 0.25,
+                speed: 1,
+                textOffsetY: 20
+            }
+        ];
+        this.pendingImages = [...this.imageConfigs]; // Make a copy to work with
     }
 
     create() {
         this.cameras.main.setBackgroundColor(0x00ff00);
         this.add.image(512, 384, 'background').setAlpha(0.5);
 
-        // Create Ron with label
-        this.ron = new ImageWithLabel(this, 760, 250, 'RonBurgundy', {
-            scale: 0.1,
-            depth: 101,
-            labelPrefix: 'Ron:'
-        });
-
-        // Create Gilla with label
-        this.gilla = new ImageWithLabel(this, 760, 350, 'Gilla', {
-            scale: 0.25,
-            depth: 101,
-            labelPrefix: 'Gilla:',
-            textOffsetY: 20 // Position text below the image
-        });
-
-        this.packaderm = new ImageWithLabel(this, 760, 350, 'packaderm', {
-            scale: 0.25,
-            depth: 101,
-            labelPrefix: 'Milo The Elephant:',
-            textOffsetY: 20 // Position text below the image
+        // Add space bar to navigate to GameOver scene - no visual hint
+        this.spaceKey = this.input.keyboard.addKey('SPACE');
+        
+        // Add debug key
+        this.debugKey = this.input.keyboard.addKey('D');
+        
+        // Initialize debug mode (off by default)
+        this.debugMode = false;
+        
+        // Setup debug mode toggle
+        this.input.keyboard.on('keydown-D', () => {
+            this.debugMode = !this.debugMode;
+            
+            // Update all existing images
+            for (const imageObj of this.activeImages) {
+                imageObj.setDebugVisible(this.debugMode);
+            }
         });
 
         // Setup scene transition on click
         this.input.once('pointerdown', () => {
             this.scene.start('GameOver');
         });
+
+        // Schedule the first image
+        this.scheduleNextImage();
+    }
+
+    scheduleNextImage() {
+        // Get a random delay between 1-5 seconds
+        const delay = Phaser.Math.Between(1000, 5000);
+        
+        // Schedule next image creation
+        this.time.delayedCall(delay, () => {
+            this.createRandomImage();
+            // Schedule the next one
+            this.scheduleNextImage();
+        });
+    }
+
+    createRandomImage() {
+      if (this.pendingImages.length === 0){
+             this.pendingImages = [...this.imageConfigs];
+        }
+      
+        // Get a random config from the pending list
+        const randomIndex = Phaser.Math.Between(0, this.pendingImages.length - 1);
+        const config = this.pendingImages.splice(randomIndex, 1)[0];
+        
+        // Create the image at a random Y position off-screen
+        const screenHeight = this.scale.height;
+        const randomY = Math.floor(Math.random() * (screenHeight - 100)) + 50;
+        
+        const imageObj = new ImageWithLabel(this, -50, randomY, config.key, {
+            scale: config.scale,
+            depth: 101,
+            labelPrefix: config.label,
+            textOffsetY: config.textOffsetY || 0,
+            debugMode: this.debugMode // Pass the current debug mode state
+        });
+        
+        // Store the speed with the image object
+        imageObj.speed = config.speed;
+        
+        // Add to active images
+        this.activeImages.push(imageObj);
     }
 
     update() {
-        //Images
-        this.moveImageWithLabel(this.ron, .5);
-        this.moveImageWithLabel(this.gilla, 1);
-        this.moveImageWithLabel(this.packaderm, 1);
+        // Move all active images
+        for (const imageObj of this.activeImages) {
+            this.moveImageWithLabel(imageObj, imageObj.speed);
+        }
     }
 
     moveImageWithLabel(imageObj, speed = 2) {
@@ -57,29 +121,30 @@ export class Game extends Scene {
             const imageHalfWidth = imageObj.image.displayWidth / 2;
             
             // Choose a position that's completely off screen to the left
-            // (image center is at least its half-width beyond the left edge)
             const offscreenX = -imageHalfWidth - Math.floor(Math.random() * 40);
-            const randomY = Math.floor(Math.random() * (screenHeight - 100)) + 50;
             
             // Set the initial position
-            imageObj.setPosition(offscreenX, randomY);
+            imageObj.setPosition(offscreenX, imageObj.y);
             
             // Store original position for reference
             imageObj.image.startX = offscreenX;
-            imageObj.image.startY = randomY;
+            imageObj.image.startY = imageObj.y;
         }
         
         // Move the image and text together
         imageObj.setPosition(imageObj.x + speed, imageObj.y);
         
         // Reset position when it's completely off screen to the right
-        // (image center is at least its half-width beyond the right edge)
         const imageHalfWidth = imageObj.image.displayWidth / 2;
         if (imageObj.x > screenWidth + imageHalfWidth) {
-            // Choose a new random starting position completely off screen to the left
-            const offscreenX = -imageHalfWidth - Math.floor(Math.random() * 40);
-            const randomY = Math.floor(Math.random() * (screenHeight - 100)) + 50;
-            imageObj.setPosition(offscreenX, randomY);
+            // Remove this image from active images
+            const index = this.activeImages.indexOf(imageObj);
+            if (index !== -1) {
+                this.activeImages.splice(index, 1);
+            }
+            
+            // Destroy the image
+            imageObj.destroy();
         }
     }
 }

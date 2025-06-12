@@ -13,8 +13,9 @@ export class ImageWithLabel {
             },
             showDimensions: true,
             labelPrefix: '',
-            textOffsetX: null, // Will be auto-calculated based on image width
-            textOffsetY: 0
+            textOffsetX: null,
+            textOffsetY: 0,
+            debugMode: false  // Default to debug off
         };
         
         // Override with provided options
@@ -28,23 +29,26 @@ export class ImageWithLabel {
         // Calculate text position
         const textOffsetX = settings.textOffsetX || (this.image.displayWidth/2 + 10);
         
-        // Prepare label text
-        let labelText = settings.labelPrefix;
-        
-        // Add dimensions if needed
-        if (settings.showDimensions) {
-            labelText += `\nWidth: ${this.image.width}`;
-            labelText += `\nHeight: ${this.image.height}`;
-            labelText += `\nDisplay W: ${this.image.displayWidth.toFixed(1)}`;
-            labelText += `\nDisplay H: ${this.image.displayHeight.toFixed(1)}`;
-        }
-        
-        // Create the text
-        this.text = scene.add.text(
+        // Create debug text with details (initially hidden)
+        this.debugText = scene.add.text(
             x + textOffsetX,
             y + settings.textOffsetY,
-            labelText,
+            this._getDebugText(texture, settings.labelPrefix),
             settings.textStyle
+        ).setOrigin(0, 0.5).setVisible(settings.debugMode);
+        
+        // Create simple image name text (always visible unless toggled)
+        this.nameText = scene.add.text(
+            x + textOffsetX,
+            y + settings.textOffsetY - 20, // Position above debug text
+            texture, // Just show the image key
+            {
+                fontFamily: settings.textStyle.fontFamily,
+                fontSize: settings.textStyle.fontSize,
+                color: '#ffffff',
+                backgroundColor: '#00000099',
+                padding: { x: 6, y: 3 }
+            }
         ).setOrigin(0, 0.5);
         
         // Store reference to scene
@@ -55,19 +59,37 @@ export class ImageWithLabel {
         this.textOffsetY = settings.textOffsetY;
     }
     
-    // Set position of both image and text
+    _getDebugText(texture, labelPrefix) {
+        let text = labelPrefix;
+        text += `\nWidth: ${this.image.width}`;
+        text += `\nHeight: ${this.image.height}`;
+        text += `\nDisplay W: ${this.image.displayWidth.toFixed(1)}`;
+        text += `\nDisplay H: ${this.image.displayHeight.toFixed(1)}`;
+        return text;
+    }
+    
+    // Set position of both image and texts
     setPosition(x, y) {
         this.image.x = x;
         this.image.y = y;
-        this.text.x = x + this.textOffsetX;
-        this.text.y = y + this.textOffsetY;
+        this.debugText.x = x + this.textOffsetX;
+        this.debugText.y = y + this.textOffsetY;
+        this.nameText.x = x + this.textOffsetX;
+        this.nameText.y = y + this.textOffsetY - 20; // Keep above debug text
         return this;
     }
     
-    // Set visibility of both image and text
+    // Toggle debug text visibility
+    setDebugVisible(visible) {
+        this.debugText.setVisible(visible);
+        return this;
+    }
+    
+    // Set visibility of both image and texts
     setVisible(visible) {
         this.image.setVisible(visible);
-        this.text.setVisible(visible);
+        this.debugText.setVisible(visible && this.scene.debugMode);
+        this.nameText.setVisible(visible);
         return this;
     }
     
@@ -75,16 +97,18 @@ export class ImageWithLabel {
     get x() { return this.image.x; }
     get y() { return this.image.y; }
     
-    // Set alpha for both components
+    // Set alpha for all components
     setAlpha(alpha) {
         this.image.setAlpha(alpha);
-        this.text.setAlpha(alpha);
+        this.debugText.setAlpha(alpha);
+        this.nameText.setAlpha(alpha);
         return this;
     }
     
-    // Destroy both components
+    // Destroy all components
     destroy() {
         this.image.destroy();
-        this.text.destroy();
+        this.debugText.destroy();
+        this.nameText.destroy();
     }
 }

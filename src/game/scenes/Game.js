@@ -13,6 +13,31 @@ export class Game extends Scene {
 
     create() {
 
+         // Check if running as installed PWA
+        const isStandalone = window.navigator.standalone || 
+                            window.matchMedia('(display-mode: standalone)').matches;
+        
+        if (!isStandalone && !this.hasShownInstallPrompt) {
+            // Show instruction to add to home screen
+            const text = this.add.text(
+            this.cameras.main.centerX, 
+            this.cameras.main.height - 50, 
+            'Add to Home Screen for fullscreen experience',
+            { fontSize: '16px', fill: '#fff' }
+            ).setOrigin(0.5).setDepth(1000);
+            
+            this.tweens.add({
+            targets: text,
+            alpha: { from: 1, to: 0 },
+            duration: 3000,
+            ease: 'Power2',
+            delay: 5000
+            });
+            
+            this.hasShownInstallPrompt = true;
+        }
+
+
          // Add full screen button
     const fullScreenButton = this.add.image(this.scale.width - 16, 16, 'fullscreen-icon')
         .setOrigin(1, 0)
@@ -29,14 +54,14 @@ export class Game extends Scene {
         }
     });
 
-    // Add keyboard shortcut for full screen (F key)
+    // Improved full screen handling
     this.input.keyboard.on('keydown-F', () => {
-        if (this.scale.isFullscreen) {
-            this.scale.stopFullscreen();
-        } else {
-            this.scale.startFullscreen();
-        }
-    });
+        this.toggleFullscreen();
+        });
+
+    // Listen for both entering and exiting fullscreen
+    this.scale.on('enterfullscreen', this.onEnterFullScreen, this);
+    this.scale.on('leavefullscreen', this.onLeaveFullScreen, this);
 
         // Background music with looping
         this.backgroundMusic = this.sound.add('backgroundMusic', {
@@ -66,7 +91,6 @@ export class Game extends Scene {
         // MISSING: You need to play the video
         this.video.play(true); // The 'true' parameter enables looping
     
-        
         this.cameras.main.setBackgroundColor(0x00ff00);
        // this.add.image(512, 384, 'background').setAlpha(0.5);
 
@@ -97,6 +121,59 @@ export class Game extends Scene {
         // Schedule the first image
         this.scheduleNextImage();
     }
+
+    toggleFullscreen() {
+    if (this.scale.isFullscreen) {
+        this.scale.stopFullscreen();
+    } else {
+        this.scale.startFullscreen();
+        }
+    }
+
+    onEnterFullScreen() {
+        // Force a resize and reposition when entering fullscreen
+        this.scale.refresh();
+    
+        // Give the browser a moment to adjust before repositioning elements
+        this.time.delayedCall(200, () => {
+            this.repositionElements();
+        });
+    }
+
+    onLeaveFullScreen() {
+    // Force a resize and reposition when exiting fullscreen
+    this.scale.refresh();
+    
+    // Give the browser a moment to adjust before repositioning elements
+    this.time.delayedCall(200, () => {
+        this.repositionElements();
+    });
+}
+
+repositionElements() {
+    // Reposition and resize all your game elements
+    const width = this.scale.width;
+    const height = this.scale.height;
+    
+    // Recalculate video dimensions and position
+    if (this.video) {
+        const videoWidth = width;
+        const videoHeight = videoWidth * (9/16); // Assuming 16:9 video
+        
+        this.video
+            .setPosition(width/2, height/2)
+            .setDisplaySize(videoWidth, videoHeight);
+    }
+    
+    // Reposition any other UI elements
+    // ...
+    
+    // If you have background elements or containers, update them too
+    // ...
+    
+    // Force the scene to redraw
+    this.scene.restart();
+}
 
     scheduleNextImage() {
         // Get a random delay between 1-5 seconds

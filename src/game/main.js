@@ -1,3 +1,16 @@
+// Register service worker for PWA functionality
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then((registration) => {
+        console.log('ServiceWorker registration successful with scope:', registration.scope);
+      })
+      .catch((err) => {
+        console.log('ServiceWorker registration failed:', err);
+      });
+  });
+}
+
 import { Boot } from './scenes/Boot';
 import { Preloader } from './scenes/Preloader';
 import { MainMenu } from './scenes/MainMenu';
@@ -23,6 +36,7 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: window.innerWidth,
         height: window.innerHeight,
+        fullscreenTarget: document.body // Important: Specify the fullscreen target
     },
     scene: [
         Boot,

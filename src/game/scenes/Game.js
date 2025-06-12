@@ -37,7 +37,6 @@ export class Game extends Scene {
             this.hasShownInstallPrompt = true;
         }
 
-
          // Add full screen button
     const fullScreenButton = this.add.image(this.scale.width - 16, 16, 'fullscreen-icon')
         .setOrigin(1, 0)

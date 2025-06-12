@@ -1,14 +1,21 @@
-// Register service worker for PWA functionality
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    // Determine appropriate path based on hostname
+    const isGithubPages = window.location.hostname === 'rgriola.github.io';
+    const swPath = isGithubPages ? '/Landen_2025_Grad/service-worker.js' : '/service-worker.js';
+    
+    navigator.serviceWorker.register(swPath)
       .then((registration) => {
         console.log('ServiceWorker registration successful with scope:', registration.scope);
       })
       .catch((err) => {
-        console.log('ServiceWorker registration failed:', err);
+        // Log but don't break the app
+        console.log('ServiceWorker registration failed (app will still work):', err);
       });
   });
+} else {
+  // Service workers not supported but app continues
+  console.log('Service workers not supported in this browser (app will still work)');
 }
 
 import { Boot } from './scenes/Boot';

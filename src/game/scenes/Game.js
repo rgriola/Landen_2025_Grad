@@ -53,6 +53,14 @@ export class Game extends Scene {
         }
     });
 
+    // ADD RESIZE HANDLING HERE
+        window.addEventListener('resize', () => {
+            this.scale.refresh();
+            
+            // If you need to reposition elements after resize
+            this.repositionElements();
+        });
+
     // Improved full screen handling
     this.input.keyboard.on('keydown-F', () => {
         this.toggleFullscreen();
@@ -131,7 +139,7 @@ export class Game extends Scene {
 
     onEnterFullScreen() {
         // Force a resize and reposition when entering fullscreen
-        this.scale.refresh();
+        this.scale.refresh();s
     
         // Give the browser a moment to adjust before repositioning elements
         this.time.delayedCall(200, () => {

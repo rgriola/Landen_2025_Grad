@@ -1,38 +1,49 @@
 import { Scene } from 'phaser';
 import { ImageWithLabel } from '../gameObjects/ImageWithLabel.js';
+import { ASSETS } from '../assets.js';
 
 export class Game extends Scene {
     constructor() {
         super('Game');
         this.activeImages = [];
-        this.imageConfigs = [
-            {
-                key: 'RonBurgundy',
-                label: 'Ron:',
-                scale: 0.1,
-                speed: 0.5
-            },
-            {
-                key: 'Gilla',
-                label: 'Gilla:',
-                scale: 0.25,
-                speed: 1,
-                textOffsetY: 20
-            },
-            {
-                key: 'packaderm',
-                label: 'Milo The Elephant:',
-                scale: 0.25,
-                speed: 1,
-                textOffsetY: 20
-            }
-        ];
+        this.imageConfigs = ASSETS.images; // Use the image configurations from assets.js
+    
         this.pendingImages = [...this.imageConfigs]; // Make a copy to work with
     }
 
     create() {
+
+        // Background music with looping
+        this.backgroundMusic = this.sound.add('backgroundMusic', {
+            volume: 0.5,
+            loop: true
+        });
+        this.backgroundMusic.play();
+
+        // Calculate video dimensions to maintain aspect ratio
+        const screenWidth = this.scale.width;    // 640
+        const screenHeight = this.scale.height;  // 480
+        
+        // For a 16:9 video in a 4:3 container, we'll set the width to match
+        // and let the height be calculated based on 16:9 aspect ratio
+        const videoWidth = screenWidth;          // 640
+        const videoHeight = videoWidth * (9/16); // 360
+        
+        // Load background video
+        this.video = this.add.video(screenWidth/2, screenHeight/2, 'rivertimelapse')
+       // .setDisplaySize(videoWidth, videoHeight)
+        .setScale(.6)
+        .setOrigin(0.5, 0.5)
+        .setDepth(0)
+        .setMute(true)
+        .setAlpha(0.8); // Slightly transparent
+
+        // MISSING: You need to play the video
+        this.video.play(true); // The 'true' parameter enables looping
+    
+        
         this.cameras.main.setBackgroundColor(0x00ff00);
-        this.add.image(512, 384, 'background').setAlpha(0.5);
+       // this.add.image(512, 384, 'background').setAlpha(0.5);
 
         // Add space bar to navigate to GameOver scene - no visual hint
         this.spaceKey = this.input.keyboard.addKey('SPACE');
@@ -75,8 +86,8 @@ export class Game extends Scene {
     }
 
     createRandomImage() {
-      if (this.pendingImages.length === 0){
-             this.pendingImages = [...this.imageConfigs];
+        if (this.pendingImages.length === 0) {
+            this.pendingImages = [...this.imageConfigs];
         }
       
         // Get a random config from the pending list
@@ -87,12 +98,32 @@ export class Game extends Scene {
         const screenHeight = this.scale.height;
         const randomY = Math.floor(Math.random() * (screenHeight - 100)) + 50;
         
+        // Get a reference to the texture to check its dimensions
+        const texture = this.textures.get(config.key);
+        const textureWidth = texture.source[0].width;
+        const textureHeight = texture.source[0].height;
+        
+        // Calculate maximum scale based on screen size (50% of screen)
+        const maxWidth = this.scale.width * 0.5;
+        const maxHeight = this.scale.height * 0.5;
+        
+        // Calculate scale factor to fit within the max dimensions
+        const scaleX = maxWidth / textureWidth;
+        const scaleY = maxHeight / textureHeight;
+        
+        // Use the smaller scale to ensure image fits in both dimensions
+        let finalScale = Math.min(scaleX, scaleY);
+        
+        // Generate a random scale between 0.1 and finalScale
+        // This ensures the image is never larger than 50% of screen
+        const randomScale = Phaser.Math.FloatBetween(0.1, finalScale);
+        
         const imageObj = new ImageWithLabel(this, -50, randomY, config.key, {
-            scale: config.scale,
+            scale: randomScale,
             depth: 101,
             labelPrefix: config.label,
             textOffsetY: config.textOffsetY || 0,
-            debugMode: this.debugMode // Pass the current debug mode state
+            debugMode: this.debugMode
         });
         
         // Store the speed with the image object

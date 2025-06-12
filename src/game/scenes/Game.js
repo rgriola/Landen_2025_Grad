@@ -25,6 +25,13 @@ export class Game extends Scene {
             textOffsetY: 20 // Position text below the image
         });
 
+        this.packaderm = new ImageWithLabel(this, 760, 350, 'packaderm', {
+            scale: 0.25,
+            depth: 101,
+            labelPrefix: 'Milo The Elephant:',
+            textOffsetY: 20 // Position text below the image
+        });
+
         // Setup scene transition on click
         this.input.once('pointerdown', () => {
             this.scene.start('GameOver');
@@ -32,9 +39,10 @@ export class Game extends Scene {
     }
 
     update() {
-        // Move Ron and Gilla
-        this.moveImageWithLabel(this.ron, 2);
+        //Images
+        this.moveImageWithLabel(this.ron, .5);
         this.moveImageWithLabel(this.gilla, 1);
+        this.moveImageWithLabel(this.packaderm, 1);
     }
 
     moveImageWithLabel(imageObj, speed = 2) {

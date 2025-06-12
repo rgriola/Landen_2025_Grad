@@ -28,6 +28,7 @@ export class Preloader extends Scene
         //ASSET PATH
         this.load.setPath('assets');
 
+        this.load.image('packaderm', 'packaderm.png');
         this.load.image('RonBurgundy', 'Ron_Burgundy.png');
         this.load.image('Gilla', 'Gilla_.png');
         // PHASER

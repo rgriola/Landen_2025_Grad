@@ -1,117 +1,140 @@
 export const ASSETS = {
     images: [
+        // Numbers first
         {
-            key: 'RonBurgundy',
-            path: 'Ron_Burgundy.png',
-            label: 'Ron:',
-            scale: 0.1,
-            speed: 0.5
-        },
-        {
-            key: 'Gilla',
-            path: 'Gilla_.png',
-            label: 'Gilla:',
-            scale: 0.25,
-            speed: 1,
-            textOffsetY: 20
-        },
-        {
-            key: 'packaderm',
-            path: 'packaderm.png',
-            label: 'Milo The Elephant:',
-            scale: 0.25,
-            speed: 1,
-            textOffsetY: 20
+            key: '1974_East',
+            path: '1974_East.png',
+            label: '1974',
+            scale: 1,
+            speed: 1
         },
         {
             key: '1974',
             path: '1974.jpg',
-            label: '1974:',
-            scale: 0.25,
+            label: '1974',
+            scale: 1,
             speed: 1
         },
+        // Then alphabetically by path
         {
             key: 'background',
             path: 'bg.png',
-            label: 'Background:',
-            scale: 1.0,
+            label: 'Background',
+            scale: 1,
             speed: 0
         },
         {
             key: 'cameraman',
             path: 'cameraman.jpg',
-            label: 'Cameraman:',
-            scale: 0.25,
+            label: 'Cameraman',
+            scale: 1,
             speed: 1
         },
         {
-            key: 'dadandme',
-            path: 'dadandme.jpg',
-            label: 'Dad and Me:',
-            scale: 0.25,
+            key: 'dadandmepng',
+            path: 'Dad_Me_San_Diego.png',
+            label: 'Full of Love',
+            scale: 1,
             speed: 1
         },
         {
             key: 'dakotalove',
             path: 'dakotalove.jpg',
-            label: 'Dakota Love:',
-            scale: 0.25,
+            label: 'Dakota Love',
+            scale: 1,
             speed: 1
+        },
+        {
+            key: 'Gilla',
+            path: 'Gilla_.png',
+            label: 'Gilla',
+            scale: 1,
+            speed: 1,
+            textOffsetY: 0
         },
         {
             key: 'handholders',
             path: 'handholders.png',
-            label: 'Hand Holders:',
-            scale: 0.25,
+            label: 'Hand Holders',
+            scale: 1,
             speed: 1
         },
         {
             key: 'jailbird',
             path: 'jailbird.jpg',
-            label: 'Jailbird:',
-            scale: 0.25,
+            label: 'Jailbird',
+            scale: 1,
             speed: 1
         },
         {
             key: 'leaDogStroller',
             path: 'Lea_Dog_Stroller.png',
-            label: 'Lea Dog Stroller:',
-            scale: 0.25,
+            label: 'Lea Dog Stroller',
+            scale: 1,
             speed: 1
         },
         {
             key: 'logo',
             path: 'logo.png',
-            label: 'Logo:',
-            scale: 1.0,
-            speed: 0
+            label: 'Logo',
+            scale: 1,
+            speed: 1
+        },
+        {
+            key: 'LoveMe',
+            path: 'Love_Me.png',
+            label: 'My Love Dakota',
+            scale: 1,
+            speed: 1
+        },
+        {
+            key: 'LoveSign',
+            path: 'Love_Sign.png',
+            label: 'Ugh Again',
+            scale: 1,
+            speed: 1
         },
         {
             key: 'lucky',
-            path: 'lucky.png',
+            path: 'Lucky_Man.png',
             label: 'Lucky:',
-            scale: 0.25,
+            scale: 1,
+            speed: 1
+        },
+        {
+            key: 'Umzula-zuli_Zuli',
+            path: 'packaderm.png',
+            label: 'Umzula-zuli "Zuli"',
+            scale: 1,
+            speed: 1,
+            textOffsetY: 0
+        },
+        {
+            key: 'RonBurgundy',
+            path: 'Ron_Burgundy.png',
+            label: 'Reporter',
+            scale: 1,
             speed: 1
         },
         {
             key: 'samenrosendave',
             path: 'samenrosendave.jpg',
-            label: 'Sam, En, Rose, and Dave:',
-            scale: 0.25,
+            label: 'Sam & Rose &Dave:',
+            scale: 1,
             speed: 1
         },
         {
             key: 'sisters',
             path: 'sisters.jpg',
-            label: 'Sisters:',
-            scale: 0.25,
+            label: 'Sisters',
+            scale: 1,
             speed: 1
         },
         {
             key: 'thelegend',
             path: 'thelegend.jpg',
-            label: 'The Legend:',
-            scale: 0.25,
+            label: 'The Legend',
+            scale: 1,
             speed: 1
         }
     ],
@@ -128,7 +151,7 @@ export const ASSETS = {
          {
             key: 'rivertimelapse',
             path: 'rivertimelapse.mp4',
-            scale: 1.0,
+            scale: 1,
             loop: true,
             muted: true,  // Looping background videos should usually be muted
             autoplay: false

@@ -1,7 +1,14 @@
+import { FONTS } from '../config/fonts.js';
+
 export class ImageWithLabel {
     constructor(scene, x, y, texture, options = {}) {
+        // Store reference to scene
+        this.scene = scene;
+        this.texture = texture;
+        this.options = options;
+
         // Default options
-        const settings = {
+        this.settings = {
             scale: 1,
             depth: 100,
             textStyle: {
@@ -19,46 +26,45 @@ export class ImageWithLabel {
         };
         
         // Override with provided options
-        Object.assign(settings, options);
-        
+        Object.assign(this.settings, this.options);
+
         // Create the image
         this.image = scene.add.image(x, y, texture)
-            .setDepth(settings.depth)
-            .setScale(settings.scale);
-        
+            .setDepth(this.settings.depth)
+            .setScale(this.settings.scale);
+
         // Calculate text position
-        const textOffsetX = settings.textOffsetX || (this.image.displayWidth/2 + 10);
-        
-        // Create debug text with details (initially hidden)
-        this.debugText = scene.add.text(
-            x + textOffsetX,
-            y + settings.textOffsetY,
-            this._getDebugText(texture, settings.labelPrefix),
-            settings.textStyle
-        ).setOrigin(0, 0.5).setVisible(settings.debugMode);
-        
+        this.textOffsetX = this.settings.textOffsetX || (this.image.displayWidth/2 + 10);
+
+        // DEBUG TEXT TO MOVE IT
+        this.addDebugText();
+
         // Create simple image name text (always visible unless toggled)
         this.nameText = scene.add.text(
-            x + textOffsetX,
-            y + settings.textOffsetY - 20, // Position above debug text
-            texture, // Just show the image key
-            {
-                fontFamily: settings.textStyle.fontFamily,
-                fontSize: settings.textStyle.fontSize,
-                color: '#ffffff',
-                backgroundColor: '#00000099',
-                padding: { x: 6, y: 3 }
-            }
-        ).setOrigin(0, 0.5);
-        
-        // Store reference to scene
-        this.scene = scene;
-        
+            x,
+            y, // Position above debug text
+            this.settings.labelPrefix, // Just show the image key
+            FONTS.styles.imageLabelA
+        ).setOrigin(0, 0)
+        . setAlpha(0.5)
+        .setDepth(101);
+
         // Store offsets for animation
-        this.textOffsetX = textOffsetX;
-        this.textOffsetY = settings.textOffsetY;
+        this.textOffsetX = this.textOffsetX;
+        this.textOffsetY = this.settings.textOffsetY;
     }
     
+    addDebugText() {
+       // Create debug text with details (initially hidden)
+        this.debugText = this.scene.add.text(
+            this.x + this.textOffsetX,
+            this.y + this.textOffsetY,
+            this._getDebugText(this.texture, this.settings.labelPrefix),
+            FONTS.styles.debug
+        ).setOrigin(0, 0.5)
+        .setVisible(this.options.debugMode || false);
+    }
+
     _getDebugText(texture, labelPrefix) {
         let text = labelPrefix;
         text += `\nWidth: ${this.image.width}`;
@@ -72,10 +78,11 @@ export class ImageWithLabel {
     setPosition(x, y) {
         this.image.x = x;
         this.image.y = y;
+        this.nameText.x = x;
+        this.nameText.y = y;
+        // FOR DEBUGGING
         this.debugText.x = x + this.textOffsetX;
-        this.debugText.y = y + this.textOffsetY;
-        this.nameText.x = x + this.textOffsetX;
-        this.nameText.y = y + this.textOffsetY - 20; // Keep above debug text
+        this.debugText.y = y + this.textOffsetY;// Keep above debug text
         return this;
     }
     

@@ -1,76 +1,76 @@
 import { Scene } from 'phaser';
 import { ImageWithLabel } from '../gameObjects/ImageWithLabel.js';
 import { ASSETS } from '../assets.js';
+import { FONTS } from '../config/fonts.js';
 
 export class Game extends Scene {
     constructor() {
         super('Game');
         this.activeImages = [];
         this.imageConfigs = ASSETS.images; // Use the image configurations from assets.js
-    
         this.pendingImages = [...this.imageConfigs]; // Make a copy to work with
     }
 
     create() {
 
-         // Check if running as installed PWA
+         // PWA INSTALL RUNNING CHECK
         const isStandalone = window.navigator.standalone || 
                             window.matchMedia('(display-mode: standalone)').matches;
         
         if (!isStandalone && !this.hasShownInstallPrompt) {
             // Show instruction to add to home screen
             const text = this.add.text(
-            this.cameras.main.centerX, 
-            this.cameras.main.height - 50, 
-            'Add to Home Screen for fullscreen experience',
-            { fontSize: '16px', fill: '#fff' }
-            ).setOrigin(0.5).setDepth(1000);
+                this.cameras.main.centerX, 
+                this.cameras.main.height - 50, 
+                'Add to Home Screen for fullscreen experience',
+                 FONTS.getStyle('subtitle', { color: FONTS.colors.gold })
+                ).setOrigin(0.5).setDepth(1000);
             
-            this.tweens.add({
-            targets: text,
-            alpha: { from: 1, to: 0 },
-            duration: 3000,
-            ease: 'Power2',
-            delay: 5000
-            });
+                this.tweens.add({
+                    targets: text,
+                    alpha: { from: 1, to: 0 },
+                    duration: 3000,
+                    ease: 'Power2',
+                    delay: 5000
+                });
             
             this.hasShownInstallPrompt = true;
         }
 
          // Add full screen button
-    const fullScreenButton = this.add.image(this.scale.width - 16, 16, 'fullscreen-icon')
-        .setOrigin(1, 0)
-        .setInteractive()
-        .setScale(0.5)
-        .setDepth(1000);
+        const fullScreenButton = this.add.image(this.scale.width - 16, 16, 'fullscreen-icon')
+            .setOrigin(1, 0)
+            .setInteractive()
+            .setScale(0.5)
+            .setDepth(1000);
 
-    // Handle clicks on the button
-    fullScreenButton.on('pointerup', () => {
-        if (this.scale.isFullscreen) {
-            this.scale.stopFullscreen();
-        } else {
-            this.scale.startFullscreen();
-        }
-    });
-
-    // ADD RESIZE HANDLING HERE
-        window.addEventListener('resize', () => {
-            this.scale.refresh();
-            
-            // If you need to reposition elements after resize
-            this.repositionElements();
+        // Handle clicks on the button
+        fullScreenButton.on('pointerup', () => {
+            if (this.scale.isFullscreen) {
+                this.scale.stopFullscreen();
+            } else {
+                this.scale.startFullscreen();
+            }
         });
 
-    // Improved full screen handling
-    this.input.keyboard.on('keydown-F', () => {
-        this.toggleFullscreen();
-        });
+        // ADD RESIZE HANDLING HERE
+            window.addEventListener('resize', () => {
+                this.scale.refresh();
+                
+                // If you need to reposition elements after resize
+                this.repositionElements();
+            });
 
-    // Listen for both entering and exiting fullscreen
-    this.scale.on('enterfullscreen', this.onEnterFullScreen, this);
-    this.scale.on('leavefullscreen', this.onLeaveFullScreen, this);
+        // Improved full screen handling
+        this.input.keyboard.on('keydown-F', () => {
+            this.toggleFullscreen();
+            });
 
-        // Background music with looping
+        // Listen for both entering and exiting fullscreen
+        this.scale.on('enterfullscreen', this.onEnterFullScreen, this);
+        this.scale.on('leavefullscreen', this.onLeaveFullScreen, this);
+
+        // BACKGROUND MUSIC
         this.backgroundMusic = this.sound.add('backgroundMusic', {
             volume: 0.5,
             loop: true
@@ -78,15 +78,15 @@ export class Game extends Scene {
         this.backgroundMusic.play();
 
         // Calculate video dimensions to maintain aspect ratio
-        const screenWidth = this.scale.width;    // 640
-        const screenHeight = this.scale.height;  // 480
+        const screenWidth = this.scale.width;    // 
+        const screenHeight = this.scale.height;  // 
         
         // For a 16:9 video in a 4:3 container, we'll set the width to match
         // and let the height be calculated based on 16:9 aspect ratio
-        const videoWidth = screenWidth;          // 640
-        const videoHeight = videoWidth * (9/16); // 360
+        const videoWidth = screenWidth;          // 
+        const videoHeight = videoWidth * (9/16); // 
         
-        // Load background video
+        // LOAD VIDEO BACKGROUND  
         this.video = this.add.video(screenWidth/2, screenHeight/2, 'rivertimelapse')
        // .setDisplaySize(videoWidth, videoHeight)
         .setScale(1)
@@ -97,16 +97,34 @@ export class Game extends Scene {
 
         // MISSING: You need to play the video
         this.video.play(true); // The 'true' parameter enables looping
-    
-        this.cameras.main.setBackgroundColor(0x00ff00);
-       // this.add.image(512, 384, 'background').setAlpha(0.5);
+        this.cameras.main.setBackgroundColor(0x0088FF);
 
         // Add space bar to navigate to GameOver scene - no visual hint
         this.spaceKey = this.input.keyboard.addKey('SPACE');
-        
+
+        //TRANSITION TO GAME OVER SCENE
+        this.input.once('pointerdown', () => {
+            this.scene.start('GameOver');
+        });
+
+        // D KEY 
+        this.debugSetup();
+
+        // Schedule the first image
+        this.scheduleNextImage();
+    }
+
+
+    update() {
+            // Move all active images
+            for (const imageObj of this.activeImages) {
+                this.moveImageWithLabel(imageObj, imageObj.speed);
+            }
+        }
+
+     debugSetup(){
         // Add debug key
         this.debugKey = this.input.keyboard.addKey('D');
-        
         // Initialize debug mode (off by default)
         this.debugMode = false;
         
@@ -120,14 +138,7 @@ export class Game extends Scene {
             }
         });
 
-        // Setup scene transition on click
-        this.input.once('pointerdown', () => {
-            this.scene.start('GameOver');
-        });
-
-        // Schedule the first image
-        this.scheduleNextImage();
-    }
+     }
 
     toggleFullscreen() {
     if (this.scale.isFullscreen) {
@@ -148,39 +159,39 @@ export class Game extends Scene {
     }
 
     onLeaveFullScreen() {
-    // Force a resize and reposition when exiting fullscreen
-    this.scale.refresh();
-    
-    // Give the browser a moment to adjust before repositioning elements
-    this.time.delayedCall(200, () => {
-        this.repositionElements();
-    });
-}
-
-repositionElements() {
-    // Reposition and resize all your game elements
-    const width = this.scale.width;
-    const height = this.scale.height;
-    
-    // Recalculate video dimensions and position
-    if (this.video) {
-        const videoWidth = width;
-        const videoHeight = videoWidth * (9/16); // Assuming 16:9 video
+        // Force a resize and reposition when exiting fullscreen
+        this.scale.refresh();
         
-        this.video
-            .setPosition(width/2, height/2)
-            .setDisplaySize(videoWidth, videoHeight);
+        // Give the browser a moment to adjust before repositioning elements
+        this.time.delayedCall(200, () => {
+            this.repositionElements();
+        });
     }
+
+    repositionElements() {
+        // Reposition and resize all your game elements
+        const width = this.scale.width;
+        const height = this.scale.height;
+        
+        // Recalculate video dimensions and position
+        if (this.video) {
+            const videoWidth = width;
+            const videoHeight = videoWidth * (9/16); // Assuming 16:9 video
+            
+            this.video
+                .setPosition(width/2, height/2)
+                .setDisplaySize(videoWidth, videoHeight);
+        }
     
-    // Reposition any other UI elements
-    // ...
-    
-    // If you have background elements or containers, update them too
-    // ...
-    
-    // Force the scene to redraw
-    this.scene.restart();
-}
+            // Reposition any other UI elements
+            // ...
+            
+            // If you have background elements or containers, update them too
+            // ...
+            
+            // Force the scene to redraw
+            this.scene.restart();
+        }
 
     scheduleNextImage() {
         // Get a random delay between 1-5 seconds
@@ -198,7 +209,7 @@ repositionElements() {
         if (this.pendingImages.length === 0) {
             this.pendingImages = [...this.imageConfigs];
         }
-      
+        
         // Get a random config from the pending list
         const randomIndex = Phaser.Math.Between(0, this.pendingImages.length - 1);
         const config = this.pendingImages.splice(randomIndex, 1)[0];
@@ -236,17 +247,10 @@ repositionElements() {
         });
         
         // Store the speed with the image object
-        imageObj.speed = config.speed;
+        imageObj.speed = config.speed * Phaser.Math.Between(0.5, 2); // Randomize speed between 0.5x and 2x
         
         // Add to active images
         this.activeImages.push(imageObj);
-    }
-
-    update() {
-        // Move all active images
-        for (const imageObj of this.activeImages) {
-            this.moveImageWithLabel(imageObj, imageObj.speed);
-        }
     }
 
     moveImageWithLabel(imageObj, speed = 2) {

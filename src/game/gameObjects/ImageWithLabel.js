@@ -48,6 +48,8 @@ export class ImageWithLabel extends Phaser.GameObjects.Container {
 
         // Store speed if needed
         this.speed = options.speed || 2;
+
+        console
     }
 
     setPosition(x, y) {
@@ -67,6 +69,10 @@ export class ImageWithLabel extends Phaser.GameObjects.Container {
     destroy(fromScene) {
         // This will destroy the container and all its children
         super.destroy(fromScene);
+        console.log(`ImageWithLabel ${this.id} destroyed`);
+        if (this.particles) {
+            this.particles.destroy();
+        }
     }
 
     // Optionally, add methods for updating debug text, etc.

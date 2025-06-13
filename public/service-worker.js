@@ -1,14 +1,17 @@
 // Cache name - change this when you update your game
 const CACHE_NAME = 'landen-grad-v1';
 
-// Files to cache - add all your important assets here
+const BASE_PATH = self.location.pathname.startsWith('/Landen_2025_Grad/')
+  ? '/Landen_2025_Grad'
+  : '';
+
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/app.js',
-  '/assets/bg.png',
-  '/assets/logo.png',
-  // Add more assets as needed
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/app.js`,
+  `${BASE_PATH}/assets/bg.png`,
+  `${BASE_PATH}/assets/logo.png`,
+  // etc.
 ];
 
 // Install event - caches assets

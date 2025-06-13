@@ -1,121 +1,73 @@
 import { FONTS } from '../config/fonts.js';
 
-export class ImageWithLabel {
-    constructor(scene, x, y, texture, options = {}) {
-        // Store reference to scene
-        this.scene = scene;
-        this.texture = texture;
-        this.options = options;
+export class ImageWithLabel extends Phaser.GameObjects.Container {
+    constructor(scene, x, y, texture, imageWithLabelId, options = {}) {
+        super(scene, x, y);
 
-        // Default options
-        this.settings = {
-            scale: 1,
-            depth: 100,
-            textStyle: {
-                fontFamily: 'Arial',
-                fontSize: 14,
-                color: '#ffffff',
-                backgroundColor: '#333333',
-                padding: { x: 8, y: 4 }
-            },
-            showDimensions: true,
-            labelPrefix: '',
-            textOffsetX: null,
-            textOffsetY: 0,
-            debugMode: false  // Default to debug off
-        };
-        
-        // Override with provided options
-        Object.assign(this.settings, this.options);
+        this.id = imageWithLabelId;
 
         // Create the image
-        this.image = scene.add.image(x, y, texture)
-            .setDepth(this.settings.depth)
-            .setScale(this.settings.scale);
+        this.image = scene.add.image(0, 0, texture);
+        if (options.scale) this.image.setScale(options.scale);
 
-        // Calculate text position
-        this.textOffsetX = this.settings.textOffsetX || (this.image.displayWidth/2 + 10);
-
-        // DEBUG TEXT TO MOVE IT
-        this.addDebugText();
-
-        // Create simple image name text (always visible unless toggled)
+        // Create the label text
         this.nameText = scene.add.text(
-            x,
-            y, // Position above debug text
-            this.settings.labelPrefix, // Just show the image key
+            0,
+            this.image.displayHeight / 2 -10 + (options.textOffsetY || 0),
+            options.labelPrefix || texture,
             FONTS.styles.imageLabelA
-        ).setOrigin(0, 0)
-        . setAlpha(0.5)
-        .setDepth(101);
+        ).setOrigin(0.5, 0);
 
-        // Store offsets for animation
-        this.textOffsetX = this.textOffsetX;
-        this.textOffsetY = this.settings.textOffsetY;
-    }
-    
-    addDebugText() {
-       // Create debug text with details (initially hidden)
-        this.debugText = this.scene.add.text(
-            this.x + this.textOffsetX,
-            this.y + this.textOffsetY,
-            this._getDebugText(this.texture, this.settings.labelPrefix),
+        // DEBUG TEXT
+        this.debugText = scene.add.text(
+            0,
+            this.image.displayHeight / 2 + 60 + (options.textOffsetY || 0),
+            '',
             FONTS.styles.debug
-        ).setOrigin(0, 0.5)
-        .setVisible(this.options.debugMode || false);
+        ).setOrigin(0.5, 0).setVisible(!!options.debugMode);
+        // Add all to the container
+        this.add([this.image, this.nameText, this.debugText]);
+
+        this.particles = scene.add.particles( 0,
+                        this.image.displayHeight / 2 - 50,
+                        'red', {
+                            color: [ 0x040d61, 0xfacc22, 0xf89800, 0xf83600, 0x9f0404, 0x4b4a4f, 0x353438, 0x040404 ],
+                           // lifespan: 1500,
+                            angle: { min: -100, max: -300 },
+                            scale: 1,
+                            speed: { min: 25, max: 200},
+                            advance: 5000,
+                            blendMode: 'ADD'
+                        });
+        
+        // ADDS THE PARTICLES TO THE BOTTOM
+        this.addAt(this.particles, 0);
+    
+        // Add the container to the scene
+        scene.add.existing(this);
+
+        // Store speed if needed
+        this.speed = options.speed || 2;
     }
 
-    _getDebugText(texture, labelPrefix) {
-        let text = labelPrefix;
-        text += `\nWidth: ${this.image.width}`;
-        text += `\nHeight: ${this.image.height}`;
-        text += `\nDisplay W: ${this.image.displayWidth.toFixed(1)}`;
-        text += `\nDisplay H: ${this.image.displayHeight.toFixed(1)}`;
-        return text;
-    }
-    
-    // Set position of both image and texts
     setPosition(x, y) {
-        this.image.x = x;
-        this.image.y = y;
-        this.nameText.x = x;
-        this.nameText.y = y;
-        // FOR DEBUGGING
-        this.debugText.x = x + this.textOffsetX;
-        this.debugText.y = y + this.textOffsetY;// Keep above debug text
+        super.setPosition(x, y);
         return this;
     }
-    
-    // Toggle debug text visibility
+
     setDebugVisible(visible) {
         this.debugText.setVisible(visible);
-        return this;
     }
-    
-    // Set visibility of both image and texts
+
     setVisible(visible) {
-        this.image.setVisible(visible);
-        this.debugText.setVisible(visible && this.scene.debugMode);
-        this.nameText.setVisible(visible);
+        super.setVisible(visible);
         return this;
     }
-    
-    // Get the position of the image
-    get x() { return this.image.x; }
-    get y() { return this.image.y; }
-    
-    // Set alpha for all components
-    setAlpha(alpha) {
-        this.image.setAlpha(alpha);
-        this.debugText.setAlpha(alpha);
-        this.nameText.setAlpha(alpha);
-        return this;
+
+    destroy(fromScene) {
+        // This will destroy the container and all its children
+        super.destroy(fromScene);
     }
-    
-    // Destroy all components
-    destroy() {
-        this.image.destroy();
-        this.debugText.destroy();
-        this.nameText.destroy();
-    }
+
+    // Optionally, add methods for updating debug text, etc.
 }

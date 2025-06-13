@@ -16,7 +16,7 @@ if ('serviceWorker' in navigator) {
 } else {
   // Service workers not supported but app continues
   console.log('Service workers not supported in this browser (app will still work)');
-}
+  }
 
 import { Boot } from './scenes/Boot';
 import { Preloader } from './scenes/Preloader';
@@ -43,6 +43,7 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: window.innerWidth,
         height: window.innerHeight,
+        zoom: 1.0, // Adjust zoom if needed
         fullscreenTarget: document.body // Important: Specify the fullscreen target
     },
     scene: [

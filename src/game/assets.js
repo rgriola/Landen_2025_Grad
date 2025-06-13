@@ -138,7 +138,16 @@ export const ASSETS = {
             speed: 1
         }
     ],
-    
+    particle: [
+        {
+            key: 'red',
+            frame: 'red', // Assuming you have a red particle image
+            path: 'red.png',
+            label: 'Red Particle',
+            scale: 1
+        }
+    ],
+
     // You can add other asset types here as well
     audio: [
          {
@@ -168,7 +177,12 @@ export const ASSETS = {
         this.images.forEach(img => {
             scene.load.image(img.key, img.path || `${img.key}.png`);
         });
-        
+            // Load all particle images
+        if (this.particle) {
+            this.particle.forEach(particle => {
+                scene.load.image(particle.key, particle.path || `${particle.key}.png`);
+            });
+        }
         // Load all audio
         this.audio.forEach(audio => {
             scene.load.audio(audio.key, audio.path);

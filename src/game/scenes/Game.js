@@ -9,6 +9,9 @@ export class Game extends Scene {
         this.activeImages = [];
         this.imageConfigs = ASSETS.images; // Use the image configurations from assets.js
         this.pendingImages = [...this.imageConfigs]; // Make a copy to work with
+        
+        this.identifier = 0; // Unique identifier for images
+    
     }
 
     create() {
@@ -150,7 +153,7 @@ export class Game extends Scene {
 
     onEnterFullScreen() {
         // Force a resize and reposition when entering fullscreen
-        this.scale.refresh();s
+        this.scale.refresh();
     
         // Give the browser a moment to adjust before repositioning elements
         this.time.delayedCall(200, () => {
@@ -237,14 +240,19 @@ export class Game extends Scene {
         // Generate a random scale between 0.1 and finalScale
         // This ensures the image is never larger than 50% of screen
         const randomScale = Phaser.Math.FloatBetween(0.1, finalScale);
-        
-        const imageObj = new ImageWithLabel(this, -50, randomY, config.key, {
+
+        const imageObj = new ImageWithLabel(this, -50, randomY,
+            config.key,   // name of image
+            this.identifier, // unique identifier
+        { // options
             scale: randomScale,
             depth: 101,
             labelPrefix: config.label,
             textOffsetY: config.textOffsetY || 0,
             debugMode: this.debugMode
         });
+
+        this.identifier++;
         
         // Store the speed with the image object
         imageObj.speed = config.speed * Phaser.Math.Between(0.5, 2); // Randomize speed between 0.5x and 2x
@@ -286,8 +294,7 @@ export class Game extends Scene {
             if (index !== -1) {
                 this.activeImages.splice(index, 1);
             }
-            
-            // Destroy the image
+
             imageObj.destroy();
         }
     }

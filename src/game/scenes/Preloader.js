@@ -19,15 +19,10 @@ export class Preloader extends Scene
         }
 
     preload() {
-        // Set a generous timeout for video loading
-       // this.load.setRequestTimeout(60000);
-
-        // Load video
-       // this.load.video('intro', 'assets/videos/intro.mp4');
 
         // Use the preloadAll function to load all assets
         ASSETS.preloadAll(this);
-        
+
         // Any additional assets not in the configuration
         this.load.image('background', 'bg.png');
         this.load.image('logo', 'logo.png');

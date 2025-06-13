@@ -48,8 +48,8 @@ export class ImageWithLabel extends Phaser.GameObjects.Container {
 
         // Store speed if needed
         this.speed = options.speed || 2;
-
-        console
+        // DO NOT REMOVE
+        console.log(`ImageWithLabel ${this.id} created at (${x}, ${y}) with texture ${texture}`);
     }
 
     setPosition(x, y) {
